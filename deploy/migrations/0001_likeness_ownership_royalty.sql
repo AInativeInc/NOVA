@@ -39,13 +39,18 @@ RETURNS TRIGGER AS $$
 DECLARE
     target_character_id UUID;
     total NUMERIC(7,2);
+    ownership_exists BOOLEAN;
 BEGIN
     target_character_id := COALESCE(NEW.character_id, OLD.character_id);
     SELECT COALESCE(SUM(percentage), 0) INTO total
     FROM ownership_splits
     WHERE character_id = target_character_id;
+    SELECT EXISTS(SELECT 1 FROM character_ownerships WHERE character_id = target_character_id) INTO ownership_exists;
 
-    IF total <> 0 AND total <> 100.00::NUMERIC(7,2) THEN
+    IF total <> 100.00::NUMERIC(7,2) THEN
+        IF total = 0 AND NOT ownership_exists THEN
+            RETURN COALESCE(NEW, OLD);
+        END IF;
         RAISE EXCEPTION 'ownership split total for character % must equal 100%% when splits exist', target_character_id;
     END IF;
 

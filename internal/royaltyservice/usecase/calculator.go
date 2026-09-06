@@ -20,6 +20,9 @@ func (Calculator) Distribute(characterID string, gross float64, currency string,
 	if gross < 0 {
 		return domain.RoyaltyTransaction{}, ErrNegativeRevenue
 	}
+	if len(splits) == 0 {
+		return domain.RoyaltyTransaction{}, ErrInvalidSplits
+	}
 	total := 0.0
 	seenOwners := make(map[string]struct{}, len(splits))
 	for _, split := range splits {

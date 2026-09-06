@@ -102,3 +102,25 @@ func TestEvaluate_TerritoryAndRestrictions(t *testing.T) {
 		t.Fatal("expected approved decision")
 	}
 }
+
+func TestEvaluate_DefaultClockPath(t *testing.T) {
+	v := Validator{}
+	now := time.Now().UTC()
+	consent := likeness.ConsentAgreement{
+		ModelID:        "model-a",
+		StartsAt:       now.Add(-time.Hour),
+		EndsAt:         now.Add(time.Hour),
+		Territories:    []string{"US"},
+		AllowedUses:    []string{"marketing"},
+		RestrictedUses: []string{"political"},
+	}
+	d := v.Evaluate(domain.UsageRequest{
+		ModelID:     "model-a",
+		IntendedUse: "marketing",
+		Territory:   "US",
+		HasValidKYC: true,
+	}, consent)
+	if !d.Allowed {
+		t.Fatalf("expected approved decision, got %s", d.Reason)
+	}
+}

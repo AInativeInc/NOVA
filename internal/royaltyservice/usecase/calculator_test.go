@@ -40,3 +40,11 @@ func TestDistribute_DuplicateOwner(t *testing.T) {
 		t.Fatal("expected duplicate owner validation error")
 	}
 }
+
+func TestDistribute_EmptySplits(t *testing.T) {
+	calc := Calculator{}
+	_, err := calc.Distribute("char-1", 0, "USD", nil)
+	if err == nil {
+		t.Fatal("expected split validation error")
+	}
+}
