@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"slices"
 	"time"
 
 	ownership "github.com/AInativeInc/NOVA/internal/characterownership/domain"
@@ -37,11 +38,21 @@ func (Calculator) Distribute(characterID string, grossMinor int64, currency stri
 	if total != 10000 {
 		return domain.RoyaltyTransaction{}, ErrInvalidSplits
 	}
+	sortedSplits := slices.Clone(splits)
+	slices.SortFunc(sortedSplits, func(a, b ownership.OwnershipSplit) int {
+		if a.OwnerID < b.OwnerID {
+			return -1
+		}
+		if a.OwnerID > b.OwnerID {
+			return 1
+		}
+		return 0
+	})
 	payouts := make(map[string]int64, len(splits))
 	var running int64
-	for i, split := range splits {
+	for i, split := range sortedSplits {
 		value := grossMinor * int64(split.PercentageBPS) / 10000
-		if i == len(splits)-1 {
+		if i == len(sortedSplits)-1 {
 			value = grossMinor - running
 		}
 		payouts[split.OwnerID] = value

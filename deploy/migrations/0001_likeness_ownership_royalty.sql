@@ -55,7 +55,7 @@ BEGIN
         IF total = 0 AND NOT ownership_exists THEN
             RETURN COALESCE(NEW, OLD);
         END IF;
-        IF TG_OP = 'INSERT' AND ownership_exists AND split_count >= 1 AND total < 10000 THEN
+        IF ownership_exists AND split_count >= 1 AND total < 10000 THEN
             RETURN COALESCE(NEW, OLD);
         END IF;
         RAISE EXCEPTION 'ownership split total for character % must equal 100%% when splits exist', target_character_id;

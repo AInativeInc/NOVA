@@ -48,3 +48,24 @@ func TestDistribute_EmptySplits(t *testing.T) {
 		t.Fatal("expected split validation error")
 	}
 }
+
+func TestDistribute_DeterministicAcrossInputOrder(t *testing.T) {
+	calc := Calculator{}
+	first, err := calc.Distribute("char-1", 1, "USD", []ownership.OwnershipSplit{
+		{OwnerID: "b", PercentageBPS: 5000},
+		{OwnerID: "a", PercentageBPS: 5000},
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	second, err := calc.Distribute("char-1", 1, "USD", []ownership.OwnershipSplit{
+		{OwnerID: "a", PercentageBPS: 5000},
+		{OwnerID: "b", PercentageBPS: 5000},
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if first.PayoutByOwnerID["a"] != second.PayoutByOwnerID["a"] || first.PayoutByOwnerID["b"] != second.PayoutByOwnerID["b"] {
+		t.Fatalf("expected deterministic payouts, got first=%v second=%v", first.PayoutByOwnerID, second.PayoutByOwnerID)
+	}
+}
