@@ -108,8 +108,8 @@ func TestEvaluate_DefaultClockPath(t *testing.T) {
 	now := time.Now().UTC()
 	consent := likeness.ConsentAgreement{
 		ModelID:        "model-a",
-		StartsAt:       now.Add(-time.Hour),
-		EndsAt:         now.Add(time.Hour),
+		StartsAt:       now.Add(-24 * time.Hour),
+		EndsAt:         now.Add(24 * time.Hour),
 		Territories:    []string{"US"},
 		AllowedUses:    []string{"marketing"},
 		RestrictedUses: []string{"political"},

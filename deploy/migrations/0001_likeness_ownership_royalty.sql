@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS character_ownerships (
 CREATE TABLE IF NOT EXISTS ownership_splits (
     character_id UUID NOT NULL REFERENCES character_ownerships(character_id) ON DELETE CASCADE,
     owner_id UUID NOT NULL,
-    percentage NUMERIC(5,2) NOT NULL CHECK (percentage > 0),
+    percentage_bps INTEGER NOT NULL CHECK (percentage_bps > 0 AND percentage_bps <= 10000),
     PRIMARY KEY(character_id, owner_id)
 );
 
@@ -38,12 +38,12 @@ CREATE OR REPLACE FUNCTION validate_ownership_split_total()
 RETURNS TRIGGER AS $$
 DECLARE
     target_character_id UUID;
-    total NUMERIC(7,2);
+    total BIGINT;
     ownership_exists BOOLEAN;
     split_count BIGINT;
 BEGIN
     target_character_id := COALESCE(NEW.character_id, OLD.character_id);
-    SELECT COALESCE(SUM(percentage), 0) INTO total
+    SELECT COALESCE(SUM(percentage_bps), 0) INTO total
     FROM ownership_splits
     WHERE character_id = target_character_id;
     SELECT COUNT(*) INTO split_count
@@ -51,11 +51,11 @@ BEGIN
     WHERE character_id = target_character_id;
     SELECT EXISTS(SELECT 1 FROM character_ownerships WHERE character_id = target_character_id) INTO ownership_exists;
 
-    IF total <> 100.00::NUMERIC(7,2) THEN
+    IF total <> 10000 THEN
         IF total = 0 AND NOT ownership_exists THEN
             RETURN COALESCE(NEW, OLD);
         END IF;
-        IF TG_OP = 'INSERT' AND ownership_exists AND split_count >= 1 AND total < 100.00::NUMERIC(7,2) THEN
+        IF TG_OP = 'INSERT' AND ownership_exists AND split_count >= 1 AND total < 10000 THEN
             RETURN COALESCE(NEW, OLD);
         END IF;
         RAISE EXCEPTION 'ownership split total for character % must equal 100%% when splits exist', target_character_id;
@@ -75,10 +75,16 @@ EXECUTE FUNCTION validate_ownership_split_total();
 CREATE TABLE IF NOT EXISTS royalty_transactions (
     id UUID PRIMARY KEY,
     character_id UUID NOT NULL,
-    gross_revenue NUMERIC(14,2) NOT NULL CHECK (gross_revenue >= 0),
+    gross_revenue_minor BIGINT NOT NULL CHECK (gross_revenue_minor >= 0),
     currency CHAR(3) NOT NULL,
-    payout_by_owner JSONB NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS royalty_payouts (
+    transaction_id UUID NOT NULL REFERENCES royalty_transactions(id) ON DELETE CASCADE,
+    owner_id UUID NOT NULL,
+    amount_minor BIGINT NOT NULL CHECK (amount_minor >= 0),
+    PRIMARY KEY(transaction_id, owner_id)
 );
 
 CREATE TABLE IF NOT EXISTS consent_usage_audit (

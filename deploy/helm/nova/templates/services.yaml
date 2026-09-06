@@ -1,8 +1,5 @@
-{{- $first := true -}}
 {{- range $name, $svc := .Values.services }}
-{{- if not $first }}
 ---
-{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -34,5 +31,4 @@ spec:
   - name: grpc
     port: 50051
     targetPort: 50051
-{{- $first = false -}}
 {{- end }}
