@@ -1,0 +1,7 @@
+database:
+  dsn: ******localhost:5432/nova?sslmode=disable
+nats:
+  url: nats://localhost:4222
+gwav:
+  endpoint: https://gwav.example.internal/v2
+  harmonic_resonance: true

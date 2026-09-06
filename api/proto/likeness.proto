@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package nova.likeness.v1;
+option go_package = "github.com/AInativeInc/NOVA/api/proto/likeness/v1;likenessv1";
+
+service LikenessService {
+  rpc CreateLikeness(CreateLikenessRequest) returns (CreateLikenessResponse);
+  rpc GrantConsent(GrantConsentRequest) returns (GrantConsentResponse);
+  rpc RevokeConsent(RevokeConsentRequest) returns (RevokeConsentResponse);
+}
+
+message CreateLikenessRequest {
+  string person_id = 1;
+  string display_name = 2;
+  string verification_id = 3;
+  map<string, string> metadata = 4;
+}
+
+message CreateLikenessResponse { string model_id = 1; }
+
+message GrantConsentRequest {
+  string model_id = 1;
+  repeated string allowed_uses = 2;
+  repeated string restricted_uses = 3;
+  repeated string territories = 4;
+  string starts_at = 5;
+  string ends_at = 6;
+}
+
+message GrantConsentResponse { string consent_id = 1; }
+
+message RevokeConsentRequest {
+  string consent_id = 1;
+  string reason = 2;
+}
+
+message RevokeConsentResponse { bool revoked = 1; }

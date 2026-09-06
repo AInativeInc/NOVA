@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package nova.royalty.v1;
+option go_package = "github.com/AInativeInc/NOVA/api/proto/royalty/v1;royaltyv1";
+
+service RoyaltyService {
+  rpc DistributeRevenue(DistributeRevenueRequest) returns (DistributeRevenueResponse);
+}
+
+message DistributionSplit {
+  string owner_id = 1;
+  double percentage = 2;
+}
+
+message DistributeRevenueRequest {
+  string character_id = 1;
+  double gross_revenue = 2;
+  string currency = 3;
+  repeated DistributionSplit splits = 4;
+}
+
+message Payout {
+  string owner_id = 1;
+  double amount = 2;
+}
+
+message DistributeRevenueResponse {
+  string transaction_id = 1;
+  repeated Payout payouts = 2;
+}

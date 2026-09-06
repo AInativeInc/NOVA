@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: royalty-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: royalty-service
+  template:
+    metadata:
+      labels:
+        app: royalty-service
+    spec:
+      containers:
+      - name: royalty-service
+        image: ainativeinc/royalty-service:latest
+        ports:
+        - containerPort: 50051
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: royalty-service
+spec:
+  selector:
+    app: royalty-service
+  ports:
+  - name: grpc
+    port: 50051
+    targetPort: 50051

@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package nova.licensing.v1;
+option go_package = "github.com/AInativeInc/NOVA/api/proto/licensing/v1;licensingv1";
+
+service LicensingService {
+  rpc ValidateUsage(ValidateUsageRequest) returns (ValidateUsageResponse);
+}
+
+message ValidateUsageRequest {
+  string model_id = 1;
+  string intended_use = 2;
+  string territory = 3;
+  bool has_valid_kyc = 4;
+}
+
+message ValidateUsageResponse {
+  bool allowed = 1;
+  string reason = 2;
+}

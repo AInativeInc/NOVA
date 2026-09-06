@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package nova.characterownership.v1;
+option go_package = "github.com/AInativeInc/NOVA/api/proto/characterownership/v1;characterownershipv1";
+
+service CharacterOwnershipService {
+  rpc UpsertOwnership(UpsertOwnershipRequest) returns (UpsertOwnershipResponse);
+  rpc GetOwnership(GetOwnershipRequest) returns (GetOwnershipResponse);
+}
+
+message OwnershipSplit {
+  string owner_id = 1;
+  double percentage = 2;
+}
+
+message UpsertOwnershipRequest {
+  string character_id = 1;
+  repeated OwnershipSplit splits = 2;
+}
+
+message UpsertOwnershipResponse { bool saved = 1; }
+
+message GetOwnershipRequest { string character_id = 1; }
+
+message GetOwnershipResponse {
+  string character_id = 1;
+  repeated OwnershipSplit splits = 2;
+}

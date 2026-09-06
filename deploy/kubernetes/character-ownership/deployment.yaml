@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: character-ownership
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: character-ownership
+  template:
+    metadata:
+      labels:
+        app: character-ownership
+    spec:
+      containers:
+      - name: character-ownership
+        image: ainativeinc/character-ownership:latest
+        ports:
+        - containerPort: 50051
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: character-ownership
+spec:
+  selector:
+    app: character-ownership
+  ports:
+  - name: grpc
+    port: 50051
+    targetPort: 50051
