@@ -9,19 +9,19 @@ service RoyaltyService {
 
 message DistributionSplit {
   string owner_id = 1;
-  double percentage = 2;
+  int32 percentage_bps = 2; // 10000 = 100.00%
 }
 
 message DistributeRevenueRequest {
   string character_id = 1;
-  double gross_revenue = 2;
+  int64 gross_revenue_minor = 2; // minor units (e.g., cents)
   string currency = 3;
   repeated DistributionSplit splits = 4;
 }
 
 message Payout {
   string owner_id = 1;
-  double amount = 2;
+  int64 amount_minor = 2; // minor units (e.g., cents)
 }
 
 message DistributeRevenueResponse {

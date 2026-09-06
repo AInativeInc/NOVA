@@ -21,3 +21,11 @@ func TestValidateOwnership_Invalid(t *testing.T) {
 		t.Fatal("expected split validation error")
 	}
 }
+
+func TestValidateOwnership_DuplicateOwner(t *testing.T) {
+	svc := Service{}
+	err := svc.ValidateOwnership(domain.CharacterOwnership{Splits: []domain.OwnershipSplit{{OwnerID: "a", Percentage: 60}, {OwnerID: "a", Percentage: 40}}})
+	if err == nil {
+		t.Fatal("expected split validation error")
+	}
+}

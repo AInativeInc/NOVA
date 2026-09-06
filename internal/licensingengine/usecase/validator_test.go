@@ -10,11 +10,7 @@ import (
 
 func TestEvaluate_ModelMismatch(t *testing.T) {
 	fixedNow := time.Date(2026, 1, 2, 15, 4, 5, 0, time.UTC)
-	oldNow := nowUTC
-	nowUTC = func() time.Time { return fixedNow }
-	defer func() { nowUTC = oldNow }()
-
-	v := Validator{}
+	v := Validator{Now: func() time.Time { return fixedNow }}
 	consent := likeness.ConsentAgreement{
 		ModelID:  "model-a",
 		StartsAt: fixedNow.Add(-time.Hour),
@@ -28,11 +24,7 @@ func TestEvaluate_ModelMismatch(t *testing.T) {
 
 func TestEvaluate_ConsentInactive(t *testing.T) {
 	fixedNow := time.Date(2026, 1, 2, 15, 4, 5, 0, time.UTC)
-	oldNow := nowUTC
-	nowUTC = func() time.Time { return fixedNow }
-	defer func() { nowUTC = oldNow }()
-
-	v := Validator{}
+	v := Validator{Now: func() time.Time { return fixedNow }}
 	consent := likeness.ConsentAgreement{
 		ModelID:  "model-a",
 		StartsAt: fixedNow.Add(-2 * time.Hour),
@@ -46,11 +38,7 @@ func TestEvaluate_ConsentInactive(t *testing.T) {
 
 func TestEvaluate_MissingKYC(t *testing.T) {
 	fixedNow := time.Date(2026, 1, 2, 15, 4, 5, 0, time.UTC)
-	oldNow := nowUTC
-	nowUTC = func() time.Time { return fixedNow }
-	defer func() { nowUTC = oldNow }()
-
-	v := Validator{}
+	v := Validator{Now: func() time.Time { return fixedNow }}
 	consent := likeness.ConsentAgreement{
 		ModelID:  "model-a",
 		StartsAt: fixedNow.Add(-time.Hour),
@@ -64,11 +52,7 @@ func TestEvaluate_MissingKYC(t *testing.T) {
 
 func TestEvaluate_TerritoryAndRestrictions(t *testing.T) {
 	fixedNow := time.Date(2026, 1, 2, 15, 4, 5, 0, time.UTC)
-	oldNow := nowUTC
-	nowUTC = func() time.Time { return fixedNow }
-	defer func() { nowUTC = oldNow }()
-
-	v := Validator{}
+	v := Validator{Now: func() time.Time { return fixedNow }}
 	consent := likeness.ConsentAgreement{
 		ModelID:        "model-a",
 		StartsAt:       fixedNow.Add(-time.Hour),

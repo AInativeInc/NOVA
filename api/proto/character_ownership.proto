@@ -10,7 +10,7 @@ service CharacterOwnershipService {
 
 message OwnershipSplit {
   string owner_id = 1;
-  double percentage = 2;
+  int32 percentage_bps = 2; // 10000 = 100.00%
 }
 
 message UpsertOwnershipRequest {

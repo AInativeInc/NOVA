@@ -3,18 +3,25 @@ package usecase
 import (
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/AInativeInc/NOVA/internal/licensingengine/domain"
 	likeness "github.com/AInativeInc/NOVA/internal/likenessmanager/domain"
 )
 
-type Validator struct{}
+type Validator struct {
+	Now func() time.Time
+}
 
-func (Validator) Evaluate(req domain.UsageRequest, consent likeness.ConsentAgreement) domain.LicensingDecision {
+func (v Validator) Evaluate(req domain.UsageRequest, consent likeness.ConsentAgreement) domain.LicensingDecision {
 	if req.ModelID != consent.ModelID {
 		return domain.LicensingDecision{Allowed: false, Reason: "consent does not belong to model"}
 	}
-	if !consent.IsActive(nowUTC()) {
+	now := v.Now
+	if now == nil {
+		now = defaultNowUTC
+	}
+	if !consent.IsActive(now()) {
 		return domain.LicensingDecision{Allowed: false, Reason: "consent inactive"}
 	}
 	if !req.HasValidKYC {
