@@ -27,8 +27,8 @@ func (v Validator) Evaluate(req domain.UsageRequest, consent likeness.ConsentAgr
 	if !req.HasValidKYC {
 		return domain.LicensingDecision{Allowed: false, Reason: "requester not verified"}
 	}
-	reqTerritory := strings.ToUpper(req.Territory)
-	reqUse := strings.ToLower(req.IntendedUse)
+	reqTerritory := strings.ToUpper(strings.TrimSpace(req.Territory))
+	reqUse := strings.ToLower(strings.TrimSpace(req.IntendedUse))
 	territories := normalizeUpper(consent.Territories)
 	restrictedUses := normalizeLower(consent.RestrictedUses)
 	allowedUses := normalizeLower(consent.AllowedUses)
@@ -48,7 +48,7 @@ func (v Validator) Evaluate(req domain.UsageRequest, consent likeness.ConsentAgr
 func normalizeUpper(values []string) []string {
 	out := make([]string, 0, len(values))
 	for _, v := range values {
-		out = append(out, strings.ToUpper(v))
+		out = append(out, strings.ToUpper(strings.TrimSpace(v)))
 	}
 	return out
 }
@@ -56,7 +56,7 @@ func normalizeUpper(values []string) []string {
 func normalizeLower(values []string) []string {
 	out := make([]string, 0, len(values))
 	for _, v := range values {
-		out = append(out, strings.ToLower(v))
+		out = append(out, strings.ToLower(strings.TrimSpace(v)))
 	}
 	return out
 }

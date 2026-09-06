@@ -57,8 +57,8 @@ func TestEvaluate_TerritoryAndRestrictions(t *testing.T) {
 		ModelID:        "model-a",
 		StartsAt:       fixedNow.Add(-time.Hour),
 		EndsAt:         fixedNow.Add(time.Hour),
-		Territories:    []string{"US"},
-		AllowedUses:    []string{"marketing"},
+		Territories:    []string{" US "},
+		AllowedUses:    []string{" marketing "},
 		RestrictedUses: []string{"political"},
 	}
 
@@ -94,8 +94,8 @@ func TestEvaluate_TerritoryAndRestrictions(t *testing.T) {
 
 	allowed := v.Evaluate(domain.UsageRequest{
 		ModelID:     "model-a",
-		IntendedUse: "Marketing",
-		Territory:   "us",
+		IntendedUse: " Marketing ",
+		Territory:   " us ",
 		HasValidKYC: true,
 	}, consent)
 	if !allowed.Allowed {

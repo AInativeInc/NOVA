@@ -50,13 +50,39 @@ func (Calculator) Distribute(characterID string, grossMinor int64, currency stri
 	})
 	payouts := make(map[string]int64, len(splits))
 	var running int64
-	for i, split := range sortedSplits {
-		value := grossMinor * int64(split.PercentageBPS) / 10000
-		if i == len(sortedSplits)-1 {
-			value = grossMinor - running
-		}
+	type remainderRank struct {
+		ownerID   string
+		remainder int64
+	}
+	ranks := make([]remainderRank, 0, len(sortedSplits))
+	for _, split := range sortedSplits {
+		numerator := grossMinor * int64(split.PercentageBPS)
+		value := numerator / 10000
 		payouts[split.OwnerID] = value
 		running += value
+		ranks = append(ranks, remainderRank{
+			ownerID:   split.OwnerID,
+			remainder: numerator % 10000,
+		})
+	}
+	leftover := grossMinor - running
+	slices.SortFunc(ranks, func(a, b remainderRank) int {
+		if a.remainder > b.remainder {
+			return -1
+		}
+		if a.remainder < b.remainder {
+			return 1
+		}
+		if a.ownerID < b.ownerID {
+			return -1
+		}
+		if a.ownerID > b.ownerID {
+			return 1
+		}
+		return 0
+	})
+	for i := int64(0); i < leftover; i++ {
+		payouts[ranks[i%int64(len(ranks))].ownerID]++
 	}
 	return domain.RoyaltyTransaction{
 		ID:                uuid.NewString(),
