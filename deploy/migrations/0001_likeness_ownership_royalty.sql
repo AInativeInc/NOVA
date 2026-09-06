@@ -34,6 +34,32 @@ CREATE TABLE IF NOT EXISTS ownership_splits (
     PRIMARY KEY(character_id, owner_id)
 );
 
+CREATE OR REPLACE FUNCTION validate_ownership_split_total()
+RETURNS TRIGGER AS $$
+DECLARE
+    target_character_id UUID;
+    total NUMERIC(7,2);
+BEGIN
+    target_character_id := COALESCE(NEW.character_id, OLD.character_id);
+    SELECT COALESCE(SUM(percentage), 0) INTO total
+    FROM ownership_splits
+    WHERE character_id = target_character_id;
+
+    IF total > 100 THEN
+        RAISE EXCEPTION 'ownership split total for character % cannot exceed 100%%', target_character_id;
+    END IF;
+
+    RETURN COALESCE(NEW, OLD);
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS ownership_splits_validate_total ON ownership_splits;
+CREATE CONSTRAINT TRIGGER ownership_splits_validate_total
+AFTER INSERT OR UPDATE OR DELETE ON ownership_splits
+DEFERRABLE INITIALLY DEFERRED
+FOR EACH ROW
+EXECUTE FUNCTION validate_ownership_split_total();
+
 CREATE TABLE IF NOT EXISTS royalty_transactions (
     id UUID PRIMARY KEY,
     character_id UUID NOT NULL,

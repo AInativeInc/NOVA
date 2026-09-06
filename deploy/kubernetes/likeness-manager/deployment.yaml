@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: likeness-manager
-        image: ainativeinc/likeness-manager:latest
+        image: ainativeinc/likeness-manager:0.1.0
         ports:
         - containerPort: 50051
 ---

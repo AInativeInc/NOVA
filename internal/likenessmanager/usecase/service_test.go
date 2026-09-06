@@ -32,3 +32,15 @@ func TestRequireActiveConsent_Revoked(t *testing.T) {
 		t.Fatal("expected inactive consent error")
 	}
 }
+
+func TestRequireActiveConsent_EndBoundaryInclusive(t *testing.T) {
+	now := time.Now().UTC()
+	svc := Service{}
+	consent := domain.ConsentAgreement{
+		StartsAt: now.Add(-time.Hour),
+		EndsAt:   now,
+	}
+	if err := svc.RequireActiveConsent(consent, now); err != nil {
+		t.Fatalf("expected active consent at end boundary, got %v", err)
+	}
+}

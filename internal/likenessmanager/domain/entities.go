@@ -28,5 +28,5 @@ func (c ConsentAgreement) IsActive(at time.Time) bool {
 	if c.RevokedAt != nil {
 		return false
 	}
-	return (at.Equal(c.StartsAt) || at.After(c.StartsAt)) && at.Before(c.EndsAt)
+	return (at.Equal(c.StartsAt) || at.After(c.StartsAt)) && (at.Equal(c.EndsAt) || at.Before(c.EndsAt))
 }

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: royalty-service
-        image: ainativeinc/royalty-service:latest
+        image: ainativeinc/royalty-service:0.1.0
         ports:
         - containerPort: 50051
 ---

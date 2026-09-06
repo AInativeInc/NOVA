@@ -10,6 +10,9 @@ import (
 type Validator struct{}
 
 func (Validator) Evaluate(req domain.UsageRequest, consent likeness.ConsentAgreement) domain.LicensingDecision {
+	if req.ModelID != consent.ModelID {
+		return domain.LicensingDecision{Allowed: false, Reason: "consent does not belong to model"}
+	}
 	if !consent.IsActive(nowUTC()) {
 		return domain.LicensingDecision{Allowed: false, Reason: "consent inactive"}
 	}
