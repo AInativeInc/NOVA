@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"errors"
-	"math"
 
 	"github.com/AInativeInc/NOVA/internal/characterownership/domain"
 )
@@ -15,19 +14,19 @@ func (Service) ValidateOwnership(c domain.CharacterOwnership) error {
 	if len(c.Splits) == 0 {
 		return ErrInvalidSplit
 	}
-	total := 0.0
+	total := int32(0)
 	owners := make(map[string]struct{}, len(c.Splits))
 	for _, s := range c.Splits {
-		if s.Percentage <= 0 {
+		if s.PercentageBPS <= 0 {
 			return ErrInvalidSplit
 		}
 		if _, exists := owners[s.OwnerID]; exists {
 			return ErrInvalidSplit
 		}
 		owners[s.OwnerID] = struct{}{}
-		total += s.Percentage
+		total += s.PercentageBPS
 	}
-	if math.Abs(total-100.0) > 0.0001 {
+	if total != 10000 {
 		return ErrInvalidSplit
 	}
 	return nil

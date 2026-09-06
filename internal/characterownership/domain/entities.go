@@ -3,8 +3,8 @@ package domain
 import "time"
 
 type OwnershipSplit struct {
-	OwnerID    string
-	Percentage float64
+	OwnerID       string
+	PercentageBPS int32
 }
 
 type CharacterOwnership struct {

@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"errors"
-	"math"
 	"time"
 
 	ownership "github.com/AInativeInc/NOVA/internal/characterownership/domain"
@@ -16,48 +15,44 @@ var ErrDuplicateOwner = errors.New("ownership splits contain duplicate owner")
 
 type Calculator struct{}
 
-func (Calculator) Distribute(characterID string, gross float64, currency string, splits []ownership.OwnershipSplit) (domain.RoyaltyTransaction, error) {
-	if gross < 0 {
+func (Calculator) Distribute(characterID string, grossMinor int64, currency string, splits []ownership.OwnershipSplit) (domain.RoyaltyTransaction, error) {
+	if grossMinor < 0 {
 		return domain.RoyaltyTransaction{}, ErrNegativeRevenue
 	}
 	if len(splits) == 0 {
 		return domain.RoyaltyTransaction{}, ErrInvalidSplits
 	}
-	total := 0.0
+	total := int32(0)
 	seenOwners := make(map[string]struct{}, len(splits))
 	for _, split := range splits {
-		if split.Percentage <= 0 {
+		if split.PercentageBPS <= 0 {
 			return domain.RoyaltyTransaction{}, ErrInvalidSplits
 		}
 		if _, exists := seenOwners[split.OwnerID]; exists {
 			return domain.RoyaltyTransaction{}, ErrDuplicateOwner
 		}
 		seenOwners[split.OwnerID] = struct{}{}
-		total += split.Percentage
+		total += split.PercentageBPS
 	}
-	if math.Abs(total-100.0) > 0.0001 {
+	if total != 10000 {
 		return domain.RoyaltyTransaction{}, ErrInvalidSplits
 	}
-	payouts := make(map[string]float64, len(splits))
-	running := 0.0
+	payouts := make(map[string]int64, len(splits))
+	var running int64
 	for i, split := range splits {
-		value := round2(gross * split.Percentage / 100.0)
+		value := grossMinor * int64(split.PercentageBPS) / 10000
 		if i == len(splits)-1 {
-			value = round2(gross - running)
+			value = grossMinor - running
 		}
 		payouts[split.OwnerID] = value
-		running = round2(running + value)
+		running += value
 	}
 	return domain.RoyaltyTransaction{
-		ID:              uuid.NewString(),
-		CharacterID:     characterID,
-		GrossRevenue:    gross,
-		Currency:        currency,
-		CreatedAt:       time.Now().UTC(),
-		PayoutByOwnerID: payouts,
+		ID:                uuid.NewString(),
+		CharacterID:       characterID,
+		GrossRevenueMinor: grossMinor,
+		Currency:          currency,
+		CreatedAt:         time.Now().UTC(),
+		PayoutByOwnerID:   payouts,
 	}, nil
-}
-
-func round2(v float64) float64 {
-	return math.Round(v*100) / 100
 }

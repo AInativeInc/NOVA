@@ -8,11 +8,11 @@ import (
 
 func TestDistribute(t *testing.T) {
 	calc := Calculator{}
-	tx, err := calc.Distribute("char-1", 100.00, "USD", []ownership.OwnershipSplit{{OwnerID: "a", Percentage: 33.33}, {OwnerID: "b", Percentage: 33.33}, {OwnerID: "c", Percentage: 33.34}})
+	tx, err := calc.Distribute("char-1", 10000, "USD", []ownership.OwnershipSplit{{OwnerID: "a", PercentageBPS: 3333}, {OwnerID: "b", PercentageBPS: 3333}, {OwnerID: "c", PercentageBPS: 3334}})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if tx.PayoutByOwnerID["a"] != 33.33 || tx.PayoutByOwnerID["b"] != 33.33 || tx.PayoutByOwnerID["c"] != 33.34 {
+	if tx.PayoutByOwnerID["a"] != 3333 || tx.PayoutByOwnerID["b"] != 3333 || tx.PayoutByOwnerID["c"] != 3334 {
 		t.Fatalf("unexpected payouts: %#v", tx.PayoutByOwnerID)
 	}
 }
@@ -27,7 +27,7 @@ func TestDistribute_NegativeRevenue(t *testing.T) {
 
 func TestDistribute_InvalidSplitTotal(t *testing.T) {
 	calc := Calculator{}
-	_, err := calc.Distribute("char-1", 100, "USD", []ownership.OwnershipSplit{{OwnerID: "a", Percentage: 60}, {OwnerID: "b", Percentage: 30}})
+	_, err := calc.Distribute("char-1", 100, "USD", []ownership.OwnershipSplit{{OwnerID: "a", PercentageBPS: 6000}, {OwnerID: "b", PercentageBPS: 3000}})
 	if err == nil {
 		t.Fatal("expected split validation error")
 	}
@@ -35,7 +35,7 @@ func TestDistribute_InvalidSplitTotal(t *testing.T) {
 
 func TestDistribute_DuplicateOwner(t *testing.T) {
 	calc := Calculator{}
-	_, err := calc.Distribute("char-1", 100, "USD", []ownership.OwnershipSplit{{OwnerID: "a", Percentage: 60}, {OwnerID: "a", Percentage: 40}})
+	_, err := calc.Distribute("char-1", 100, "USD", []ownership.OwnershipSplit{{OwnerID: "a", PercentageBPS: 6000}, {OwnerID: "a", PercentageBPS: 4000}})
 	if err == nil {
 		t.Fatal("expected duplicate owner validation error")
 	}

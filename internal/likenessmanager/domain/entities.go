@@ -25,7 +25,7 @@ type ConsentAgreement struct {
 }
 
 func (c ConsentAgreement) IsActive(at time.Time) bool {
-	if c.RevokedAt != nil {
+	if c.RevokedAt != nil && (at.Equal(*c.RevokedAt) || at.After(*c.RevokedAt)) {
 		return false
 	}
 	return (at.Equal(c.StartsAt) || at.After(c.StartsAt)) && (at.Equal(c.EndsAt) || at.Before(c.EndsAt))
