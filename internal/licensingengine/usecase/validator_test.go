@@ -9,11 +9,16 @@ import (
 )
 
 func TestEvaluate_ModelMismatch(t *testing.T) {
+	fixedNow := time.Date(2026, 1, 2, 15, 4, 5, 0, time.UTC)
+	oldNow := nowUTC
+	nowUTC = func() time.Time { return fixedNow }
+	defer func() { nowUTC = oldNow }()
+
 	v := Validator{}
 	consent := likeness.ConsentAgreement{
 		ModelID:  "model-a",
-		StartsAt: time.Now().UTC().Add(-time.Hour),
-		EndsAt:   time.Now().UTC().Add(time.Hour),
+		StartsAt: fixedNow.Add(-time.Hour),
+		EndsAt:   fixedNow.Add(time.Hour),
 	}
 	d := v.Evaluate(domain.UsageRequest{ModelID: "model-b", HasValidKYC: true}, consent)
 	if d.Allowed {
@@ -22,11 +27,16 @@ func TestEvaluate_ModelMismatch(t *testing.T) {
 }
 
 func TestEvaluate_ConsentInactive(t *testing.T) {
+	fixedNow := time.Date(2026, 1, 2, 15, 4, 5, 0, time.UTC)
+	oldNow := nowUTC
+	nowUTC = func() time.Time { return fixedNow }
+	defer func() { nowUTC = oldNow }()
+
 	v := Validator{}
 	consent := likeness.ConsentAgreement{
 		ModelID:  "model-a",
-		StartsAt: time.Now().UTC().Add(-2 * time.Hour),
-		EndsAt:   time.Now().UTC().Add(-time.Hour),
+		StartsAt: fixedNow.Add(-2 * time.Hour),
+		EndsAt:   fixedNow.Add(-time.Hour),
 	}
 	d := v.Evaluate(domain.UsageRequest{ModelID: "model-a", HasValidKYC: true}, consent)
 	if d.Allowed {
@@ -35,11 +45,16 @@ func TestEvaluate_ConsentInactive(t *testing.T) {
 }
 
 func TestEvaluate_MissingKYC(t *testing.T) {
+	fixedNow := time.Date(2026, 1, 2, 15, 4, 5, 0, time.UTC)
+	oldNow := nowUTC
+	nowUTC = func() time.Time { return fixedNow }
+	defer func() { nowUTC = oldNow }()
+
 	v := Validator{}
 	consent := likeness.ConsentAgreement{
 		ModelID:  "model-a",
-		StartsAt: time.Now().UTC().Add(-time.Hour),
-		EndsAt:   time.Now().UTC().Add(time.Hour),
+		StartsAt: fixedNow.Add(-time.Hour),
+		EndsAt:   fixedNow.Add(time.Hour),
 	}
 	d := v.Evaluate(domain.UsageRequest{ModelID: "model-a", HasValidKYC: false}, consent)
 	if d.Allowed {
@@ -48,11 +63,16 @@ func TestEvaluate_MissingKYC(t *testing.T) {
 }
 
 func TestEvaluate_TerritoryAndRestrictions(t *testing.T) {
+	fixedNow := time.Date(2026, 1, 2, 15, 4, 5, 0, time.UTC)
+	oldNow := nowUTC
+	nowUTC = func() time.Time { return fixedNow }
+	defer func() { nowUTC = oldNow }()
+
 	v := Validator{}
 	consent := likeness.ConsentAgreement{
 		ModelID:        "model-a",
-		StartsAt:       time.Now().UTC().Add(-time.Hour),
-		EndsAt:         time.Now().UTC().Add(time.Hour),
+		StartsAt:       fixedNow.Add(-time.Hour),
+		EndsAt:         fixedNow.Add(time.Hour),
 		Territories:    []string{"US"},
 		AllowedUses:    []string{"marketing"},
 		RestrictedUses: []string{"political"},
@@ -61,7 +81,7 @@ func TestEvaluate_TerritoryAndRestrictions(t *testing.T) {
 	deniedTerritory := v.Evaluate(domain.UsageRequest{
 		ModelID:     "model-a",
 		IntendedUse: "marketing",
-		Territory:   "EU",
+		Territory:   "eu",
 		HasValidKYC: true,
 	}, consent)
 	if deniedTerritory.Allowed {
@@ -70,7 +90,7 @@ func TestEvaluate_TerritoryAndRestrictions(t *testing.T) {
 
 	deniedRestricted := v.Evaluate(domain.UsageRequest{
 		ModelID:     "model-a",
-		IntendedUse: "political",
+		IntendedUse: "Political",
 		Territory:   "US",
 		HasValidKYC: true,
 	}, consent)
@@ -80,7 +100,7 @@ func TestEvaluate_TerritoryAndRestrictions(t *testing.T) {
 
 	deniedAllowlist := v.Evaluate(domain.UsageRequest{
 		ModelID:     "model-a",
-		IntendedUse: "editorial",
+		IntendedUse: "Editorial",
 		Territory:   "US",
 		HasValidKYC: true,
 	}, consent)
@@ -90,8 +110,8 @@ func TestEvaluate_TerritoryAndRestrictions(t *testing.T) {
 
 	allowed := v.Evaluate(domain.UsageRequest{
 		ModelID:     "model-a",
-		IntendedUse: "marketing",
-		Territory:   "US",
+		IntendedUse: "Marketing",
+		Territory:   "us",
 		HasValidKYC: true,
 	}, consent)
 	if !allowed.Allowed {

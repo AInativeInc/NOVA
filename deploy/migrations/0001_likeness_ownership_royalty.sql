@@ -45,8 +45,8 @@ BEGIN
     FROM ownership_splits
     WHERE character_id = target_character_id;
 
-    IF total > 100 THEN
-        RAISE EXCEPTION 'ownership split total for character % cannot exceed 100%%', target_character_id;
+    IF total <> 0 AND total <> 100 THEN
+        RAISE EXCEPTION 'ownership split total for character % must equal 100%% when splits exist', target_character_id;
     END IF;
 
     RETURN COALESCE(NEW, OLD);

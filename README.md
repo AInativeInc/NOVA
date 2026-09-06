@@ -21,5 +21,5 @@ NOVA now includes scaffolding for:
 Run targeted tests:
 
 ```bash
-go test ./internal/likenessmanager/usecase ./internal/characterownership/usecase ./internal/royaltyservice/usecase
+go test ./internal/licensingengine/usecase ./internal/likenessmanager/usecase ./internal/characterownership/usecase ./internal/royaltyservice/usecase
 ```

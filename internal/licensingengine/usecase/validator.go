@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"slices"
+	"strings"
 
 	"github.com/AInativeInc/NOVA/internal/licensingengine/domain"
 	likeness "github.com/AInativeInc/NOVA/internal/likenessmanager/domain"
@@ -19,14 +20,36 @@ func (Validator) Evaluate(req domain.UsageRequest, consent likeness.ConsentAgree
 	if !req.HasValidKYC {
 		return domain.LicensingDecision{Allowed: false, Reason: "requester not verified"}
 	}
-	if len(consent.Territories) > 0 && !slices.Contains(consent.Territories, req.Territory) {
+	reqTerritory := strings.ToUpper(req.Territory)
+	reqUse := strings.ToLower(req.IntendedUse)
+	territories := normalizeUpper(consent.Territories)
+	restrictedUses := normalizeLower(consent.RestrictedUses)
+	allowedUses := normalizeLower(consent.AllowedUses)
+
+	if len(territories) > 0 && !slices.Contains(territories, reqTerritory) {
 		return domain.LicensingDecision{Allowed: false, Reason: "territory not allowed"}
 	}
-	if slices.Contains(consent.RestrictedUses, req.IntendedUse) {
+	if slices.Contains(restrictedUses, reqUse) {
 		return domain.LicensingDecision{Allowed: false, Reason: "use restricted by consent"}
 	}
-	if len(consent.AllowedUses) > 0 && !slices.Contains(consent.AllowedUses, req.IntendedUse) {
+	if len(allowedUses) > 0 && !slices.Contains(allowedUses, reqUse) {
 		return domain.LicensingDecision{Allowed: false, Reason: "use not in consent allowlist"}
 	}
 	return domain.LicensingDecision{Allowed: true, Reason: "approved"}
+}
+
+func normalizeUpper(values []string) []string {
+	out := make([]string, 0, len(values))
+	for _, v := range values {
+		out = append(out, strings.ToUpper(v))
+	}
+	return out
+}
+
+func normalizeLower(values []string) []string {
+	out := make([]string, 0, len(values))
+	for _, v := range values {
+		out = append(out, strings.ToLower(v))
+	}
+	return out
 }
