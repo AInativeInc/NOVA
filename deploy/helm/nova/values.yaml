@@ -1,0 +1,9 @@
+services:
+  likeness-manager:
+    image: ainativeinc/likeness-manager:0.1.0
+  character-ownership:
+    image: ainativeinc/character-ownership:0.1.0
+  licensing-engine:
+    image: ainativeinc/licensing-engine:0.1.0
+  royalty-service:
+    image: ainativeinc/royalty-service:0.1.0

@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: likeness-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: likeness-manager
+  template:
+    metadata:
+      labels:
+        app: likeness-manager
+    spec:
+      containers:
+      - name: likeness-manager
+        image: ainativeinc/likeness-manager:0.1.0
+        ports:
+        - containerPort: 50051
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: likeness-manager
+spec:
+  selector:
+    app: likeness-manager
+  ports:
+  - name: grpc
+    port: 50051
+    targetPort: 50051
